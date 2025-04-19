@@ -1,0 +1,20 @@
+# Core LangChain/LangGraph
+langchain>=0.1.0,<0.2.0
+langgraph>=0.0.30,<0.1.0
+langchain-openai>=0.1.0,<0.2.0 # Or your specific LLM provider
+
+# Data Sources & Tools
+alpha_vantage>=2.3.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
+requests>=2.31.0,<3.0.0
+
+# Database
+sqlalchemy>=2.0.0,<3.0.0
+psycopg2-binary>=2.9.0,<3.0.0 # Standard PostgreSQL driver
+# asyncpg>=0.29.0,<0.30.0 # Alternative async driver, uncomment if needed
+
+# Data Analysis (Likely for Analyst Agent)
+pandas>=2.0.0,<3.0.0
+
+# Utilities
+typing_extensions # Often needed by LangChain
