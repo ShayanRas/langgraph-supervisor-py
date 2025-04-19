@@ -1,0 +1,15 @@
+{
+  "graphs": {
+    "data-engineer": "langgraph_supervisor.data_engineer.main:data_engineer"
+  },
+  "dependencies": [
+    "langgraph",
+    "langchain-openai",
+    "langchain-anthropic",
+    "alpha-vantage",
+    "pandas",
+    "SQLAlchemy",
+    "psycopg2-binary",
+    "python-dotenv"
+  ]
+}
