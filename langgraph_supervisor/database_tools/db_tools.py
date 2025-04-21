@@ -1,4 +1,3 @@
-
 import logging
 from typing import List, Dict, Any, Optional
 from sqlalchemy import text
@@ -20,7 +19,7 @@ class ExecuteSQLInput(BaseModel):
     fetch_results: bool = Field(True, description="Set to True to fetch results (e.g., for SELECT statements). Set to False for statements like INSERT, UPDATE, DELETE where results are not typically needed.")
     commit_transaction: bool = Field(True, description="Set to True to automatically commit the transaction after execution. Set to False if you need to manage transactions across multiple tool calls (use with caution).")
 
-@tool
+@tool(args_schema=ExecuteSQLInput)
 def execute_sql(sql_query: str, parameters: Optional[Dict[str, Any]] = None, fetch_results: bool = True, commit_transaction: bool = True) -> Dict[str, Any]:
     """Executes a given SQL query against the configured database.
 
@@ -120,24 +119,24 @@ if __name__ == '__main__':
     # Note: Table/data must exist in your DB
     select_query = "SELECT * FROM av_economic_data_feeds WHERE indicator_key = :key LIMIT :limit"
     select_params = {"key": "REAL_GDP", "limit": 2}
-    select_result = execute_sql(select_query, parameters=select_params, fetch_results=True, commit_transaction=False) # SELECT doesn't need commit usually
+    select_result = execute_sql(sql_query=select_query, parameters=select_params, fetch_results=True, commit_transaction=False) # SELECT doesn't need commit usually
     print(f"SELECT Result: {select_result}")
 
     # --- INSERT Example (No Fetch, Commit) ---
     # print("\n--- INSERT Example (Illustrative - Modify Table/Cols) ---")
     # insert_query = "INSERT INTO your_table (column1, column2) VALUES (:val1, :val2)" # MODIFY TABLE/COLUMNS
     # insert_params = {"val1": "test_data", "val2": 123}
-    # insert_result = execute_sql(insert_query, parameters=insert_params, fetch_results=False, commit_transaction=True)
+    # insert_result = execute_sql(sql_query=insert_query, parameters=insert_params, fetch_results=False, commit_transaction=True)
     # print(f"INSERT Result: {insert_result}")
 
     # --- Example without Parameters (Use with extreme caution) ---
     # print("\n--- SELECT Example (No Params - CAUTION) ---")
     # select_no_param = "SELECT COUNT(*) as count FROM av_economic_data_feeds"
-    # select_no_param_result = execute_sql(select_no_param, fetch_results=True)
+    # select_no_param_result = execute_sql(sql_query=select_no_param, fetch_results=True)
     # print(f"SELECT (No Param) Result: {select_no_param_result}")
 
     # --- Error Example --- 
     print("\n--- Error Example (Invalid SQL) ---")
     error_query = "SELECT * FROM non_existent_table"
-    error_result = execute_sql(error_query, fetch_results=True)
+    error_result = execute_sql(sql_query=error_query, fetch_results=True)
     print(f"Error Result: {error_result}")
