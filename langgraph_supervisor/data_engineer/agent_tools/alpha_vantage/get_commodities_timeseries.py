@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 @tool
 async def get_commodity_data(
     commodity: str,
-    interval: Optional[str] = 'monthly', 
+    interval: Optional[str] = 'monthly', # Default to monthly as per README
+    max_periods: Optional[int] = None, # Add max_periods parameter
     *,
     config: Annotated[RunnableConfig, InjectedToolArg]
 ) -> Dict[str, Any]:
@@ -33,15 +34,17 @@ async def get_commodity_data(
     Args:
         commodity: The commodity to retrieve. Options include 'wti', 'brent', 'natural_gas', 'copper', 'aluminum', 'wheat', 'corn', 'cotton', 'sugar', 'coffee', 'all_commodities_index'.
         interval: The time interval for data points. Options: 'monthly', 'quarterly', 'annual'. Defaults to 'monthly'.
+        max_periods: Optional. The maximum number of recent data points (periods) to return. Useful for limiting context size.
         config: Runtime configuration (automatically injected).
 
     Returns:
-        A dictionary containing the commodity data and metadata.
+        A dictionary containing the potentially truncated commodity data and metadata.
     """
     # Define a synchronous helper function to run in the thread
     def _get_and_convert_commodity(
         commodity_key: str,
-        interval_param: str, 
+        interval_param: str, # Interval is required by the library methods
+        max_periods_param: Optional[int] # Pass max_periods
     ) -> Dict[str, Any]:
         api_data: Optional[Union[list, pd.DataFrame]] = None
         api_meta_data: Optional[dict] = None
@@ -86,8 +89,16 @@ async def get_commodity_data(
 
             logger.info(f"Successfully fetched data for '{commodity_key}'.")
 
-            # --- Prepare final return dictionary ---
+            # --- Prepare final return dictionary --- 
             final_metadata = api_meta_data if api_meta_data else {}
+
+            # --- Apply max_periods limit if specified --- 
+            if max_periods_param is not None and max_periods_param > 0 and isinstance(api_data, list):
+                logger.info(f"Limiting results for '{commodity_key}' to {max_periods_param} periods.")
+                api_data = api_data[:max_periods_param]
+            elif max_periods_param is not None and max_periods_param > 0 and isinstance(api_data, pd.DataFrame):
+                 logger.info(f"Limiting results for '{commodity_key}' to {max_periods_param} periods.")
+                 api_data = api_data.head(max_periods_param) # Assuming DataFrame is newest first
 
             return {"data": api_data, "metadata": final_metadata}
 
@@ -104,9 +115,9 @@ async def get_commodity_data(
     # Ensure interval has a valid default if None was passed initially (shouldn't happen with default set)
     effective_interval = interval if interval else 'monthly'
     result = await loop.run_in_executor(
-        None,  
+        None,  # Use default executor
         _get_and_convert_commodity,
-        commodity, effective_interval 
+        commodity, effective_interval, max_periods # Pass max_periods
     )
 
     if not isinstance(result, dict) or 'data' not in result or 'metadata' not in result:
