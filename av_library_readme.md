@@ -154,6 +154,8 @@ Provides commodity price data.
 *   `get_sugar(interval='monthly')`: Sugar prices.
 *   `get_coffee(interval='monthly')`: Coffee prices.
 *   `get_price_index(interval='monthly')`: Global All Commodities Price Index.
+By default, interval=monthly. Strings monthly, quarterly, and annual are accepted by all above.
+
 
 ### Technical Indicators (`TechIndicators`)
 
