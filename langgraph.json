@@ -1,6 +1,6 @@
 {
   "graphs": {
-    "data-engineer": "langgraph_supervisor.data_engineer.main:data_engineer"
+    "data-engineer": "langgraph_supervisor.data_analyst.main:data_analyst"
   },
   "dependencies": [
     "langgraph",
